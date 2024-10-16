@@ -1,0 +1,51 @@
+volumes:
+  db_storage:
+  rabbitmq_data:
+
+services:
+  php:
+    build: ./docker/services/php/
+    volumes:
+      - ./:/var/www/account
+      - ../data/deployer:/var/www/crm/deployer
+      - ../data/scripts:/var/www/crm/scripts
+    user: ${UID:-1000}:${GID:-1000}
+    environment:
+      SYMFONY_ENV: dev
+      APP_ENV: ${APP_ENV:-dev}
+      APP_DEBUG: ${APP_DEBUG:-1}
+      COMPOSER_CACHE_DIR: /var/www/account/.composer
+      #PHP_INI_SCAN_DIR: "/usr/local/etc/php/debug_conf.d"
+    tmpfs:
+      - /tmp
+
+  postgres:
+      build: ./docker/services/postgres/
+      labels:
+        kind: system
+      environment:
+        POSTGRES_DB: root
+        POSTGRES_USER: root
+        POSTGRES_PASSWORD: pass
+
+      command: [ postgres,
+                 -c, 'shared_buffers=1024MB',
+                 -c, 'max_connections=16',
+                 -c, 'max_locks_per_transaction=5',
+                 -c, 'track_activity_query_size=2048',
+                 -c, 'shared_preload_libraries=pg_stat_statements',
+      ]
+      volumes:
+        - "db_storage:/var/lib/postgresql/data"
+      ports:
+        - "5432:5432"
+
+  redis:
+    build: ./docker/services/redis/
+
+  rabbitmq:
+    build: ./docker/services/rabbitmq/
+    ports:
+      - "15672:15672"
+    volumes:
+      - 'rabbitmq_data:/data'
