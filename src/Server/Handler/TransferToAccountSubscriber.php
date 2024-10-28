@@ -6,7 +6,7 @@ use App\Server\Db\AccountOperationsInterface;
 use App\Server\Db\Exception\ExceptionInterface as DbException;
 use App\Server\Enum\EventNames;
 use App\Server\Event\NamedEvent;
-use App\Server\EventData\Account\WriteOffData;
+use App\Server\EventData\Account\TransferToData;
 use App\Server\Handler\Traits\AccountSubscriberTrait;
 use App\Server\Parser\Exception\ExceptionInterface as ParsingException;
 use App\Server\Parser\ParserInterface;
@@ -14,11 +14,11 @@ use App\Server\Response\ResponseCreatorInterface;
 use App\Server\Response\ResponseDataFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class WriteOffAccountSubscriber implements EventSubscriberInterface
+class TransferToAccountSubscriber implements EventSubscriberInterface
 {
     use AccountSubscriberTrait;
 
-    private const EventNames SUPPORTED_EVENT = EventNames::AccountWriteOff;
+    private const EventNames SUPPORTED_EVENT = EventNames::AccountTransferTo;
 
     public function __construct(
         private readonly ParserInterface $parser,
@@ -46,14 +46,14 @@ class WriteOffAccountSubscriber implements EventSubscriberInterface
 
         $namedEvent->stopPropagation();
 
-        /** @var ?WriteOffData $writeOffData */
-        $writeOffData = $this->parseData($namedEvent, WriteOffData::class);
-        if (null === $writeOffData) {
+        /** @var ?TransferToData $transferToData */
+        $transferToData = $this->parseData($namedEvent, TransferToData::class);
+        if (null === $transferToData) {
             return;
         }
 
         try {
-            $this->accountOperations->writeOff($writeOffData->accountId, $writeOffData->sum);
+            $this->accountOperations->transferTo($transferToData->accountIdFrom, $transferToData->accountIdTo, $transferToData->sum);
         } catch (DbException $exception) {
             $response = $this->responseCreator->createResponse(
                 ResponseDataFactory::createErrorResponseData($namedEvent->eventName, $namedEvent->eventUid, [$exception->getMessage()])

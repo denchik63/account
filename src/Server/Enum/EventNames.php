@@ -6,4 +6,5 @@ enum EventNames: string
 {
     case AccountRefill = 'account.refill';
     case AccountWriteOff = 'account.write-off';
+    case AccountTransferTo = 'account.transfer-to';
 }

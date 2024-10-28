@@ -11,4 +11,7 @@ interface AccountOperationsInterface
 
     /** @throws ExceptionInterface */
     public function writeOff(string $accountId, float $sum): void;
+
+    /** @throws ExceptionInterface */
+    public function transferTo(string $accountIdFrom, string $accountIdTo, float $sum): void;
 }

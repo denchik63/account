@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Server\Tests\Parser;
 
 use App\Server\EventData\Account\RefillData;
+use App\Server\EventData\Account\TransferToData;
 use App\Server\EventData\Account\WriteOffData;
 use App\Server\EventData\Base\Event;
 use App\Server\Parser\Exception\EventValidationException;
@@ -131,6 +132,53 @@ class ValidationRulesTest extends WebTestCase
 
         $this->assertValidation($testData);
     }
+
+    public function testTransferToData(): void
+    {
+        $testData = [
+            [
+                'event' => new TransferToData(null, null, null),
+                'errorMessages' => [
+                    'accountIdFrom: This value should not be blank.',
+                    'accountIdTo: This value should not be blank.',
+                    'sum: This value should not be blank.',
+                ],
+            ],
+            [
+                'event' => new TransferToData('', '', 12.0),
+                'errorMessages' => [
+                    'accountIdFrom: This value should not be blank.',
+                    'accountIdTo: This value should not be blank.',
+                ],
+            ],
+            [
+                'event' => new TransferToData(str_repeat('a', 256), str_repeat('b', 256), 11.0),
+                'errorMessages' => [
+                    'accountIdFrom: This value is too long. It should have 255 characters or less.',
+                    'accountIdTo: This value is too long. It should have 255 characters or less.',
+                ],
+            ],
+            [
+                'event' => new TransferToData('accountIdFrom', 'accountIdTo', -0.1),
+                'errorMessages' => [
+                    'sum: This value should be greater than 0.',
+                ],
+            ],
+            [
+                'event' => new TransferToData('accountIdFrom', 'accountIdTo', 100000000.1),
+                'errorMessages' => [
+                    'sum: This value should be less than or equal to 100000000.',
+                ],
+            ],
+            [
+                'event' => new TransferToData('123', '321', 21.0),
+                'errorMessages' => [],
+            ],
+        ];
+
+        $this->assertValidation($testData);
+    }
+
 
     /** @param array<string, mixed> $testData */
     private function assertValidation(array $testData): void

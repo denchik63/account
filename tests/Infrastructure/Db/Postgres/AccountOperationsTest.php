@@ -48,6 +48,35 @@ class AccountOperationsTest extends WebTestCase
         $this->assertEquals(-150.0, $accountTransaction['value']);
     }
 
+    public function testTransferTo(): void
+    {
+        $this->clearDbData();
+
+        $accountIdFrom = $this->createAccount(500.0);
+        $accountIdTo = $this->createAccount(100.0);
+
+        $accountOperations = static::getContainer()->get(AccountOperations::class);
+        $accountOperations->transferTo((string) $accountIdFrom, (string) $accountIdTo, 200.0);
+
+        $balance = $this->getAccountBalance($accountIdFrom);
+        $this->assertEquals(300.0, $balance);
+        $accountTransactionsFrom = $this->getAccountTransactions($accountIdFrom);
+        $this->assertCount(1, $accountTransactionsFrom);
+        $accountTransactionFrom = $accountTransactionsFrom[0];
+        $this->assertEquals(500.0, $accountTransactionFrom['old_value']);
+        $this->assertEquals(300.0, $accountTransactionFrom['new_value']);
+        $this->assertEquals(-200.0, $accountTransactionFrom['value']);
+
+        $balance = $this->getAccountBalance($accountIdTo);
+        $this->assertEquals(300.0, $balance);
+        $accountTransactionsTo = $this->getAccountTransactions($accountIdTo);
+        $this->assertCount(1, $accountTransactionsTo);
+        $accountTransactionTo = $accountTransactionsTo[0];
+        $this->assertEquals(100.0, $accountTransactionTo['old_value']);
+        $this->assertEquals(300.0, $accountTransactionTo['new_value']);
+        $this->assertEquals(200.0, $accountTransactionTo['value']);
+    }
+
     private function clearDbData(): void
     {
         $db = static::getContainer()->get(Db::class);
