@@ -10,6 +10,9 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $dataFormat: 'json'
+            $responseQueueNamePostfix: '.response'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -26,5 +29,11 @@ services:
             $port: '%env(int:RABBITMQ_PORT)%'
             $user: '%env(string:RABBITMQ_USER)%'
             $password: '%env(string:RABBITMQ_PASSWORD)%'
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+
+    App\Infrastructure\Db\Postgres\Db:
+        arguments:
+            $host: '%env(string:PG_HOST)%'
+            $port: '%env(int:PG_PORT)%'
+            $database: '%env(string:PG_DATABASE)%'
+            $user: '%env(string:PG_USER)%'
+            $password: '%env(string:PG_PASSWORD)%'

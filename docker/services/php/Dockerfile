@@ -22,10 +22,13 @@ RUN pecl install xdebug-3.3.2
 #RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 RUN docker-php-ext-configure pgsql -with-pgsql=/usr/include/postgresql/
 RUN docker-php-ext-configure calendar
-RUN docker-php-ext-install intl pgsql pdo_pgsql bcmath zip calendar pcntl
+RUN docker-php-ext-install intl pgsql pdo_pgsql bcmath zip calendar pcntl sockets
 RUN docker-php-ext-enable redis xdebug
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+COPY zzz.ini $PHP_INI_DIR/conf.d/
 
 WORKDIR /var/www/account
 

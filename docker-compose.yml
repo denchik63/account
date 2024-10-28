@@ -1,5 +1,5 @@
 volumes:
-  db_storage:
+  postgres_storage:
   rabbitmq_data:
 
 services:
@@ -24,21 +24,23 @@ services:
       labels:
         kind: system
       environment:
-        POSTGRES_DB: root
+        POSTGRES_DB: account
         POSTGRES_USER: root
         POSTGRES_PASSWORD: pass
 
       command: [ postgres,
                  -c, 'shared_buffers=1024MB',
                  -c, 'max_connections=16',
-                 -c, 'max_locks_per_transaction=5',
+                 -c, 'max_locks_per_transaction=100',
                  -c, 'track_activity_query_size=2048',
                  -c, 'shared_preload_libraries=pg_stat_statements',
       ]
       volumes:
-        - "db_storage:/var/lib/postgresql/data"
+        - "postgres_storage:/var/lib/postgresql/data:rw"
       ports:
         - "5432:5432"
+      #expose:
+      #  - "5432"
 
   redis:
     build: ./docker/services/redis/
@@ -47,5 +49,7 @@ services:
     build: ./docker/services/rabbitmq/
     ports:
       - "15672:15672"
+    expose:
+      - "5672"
     volumes:
       - 'rabbitmq_data:/data'
