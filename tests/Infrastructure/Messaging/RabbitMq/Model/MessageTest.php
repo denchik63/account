@@ -14,6 +14,6 @@ class MessageTest extends TestCase
     {
         $aMQPMessage = new AMQPMessage('{"name": "value"}');
         $massage = new Message($aMQPMessage);
-        $this->assertEquals('{"name": "value"}', $massage->getRequest());
+        $this->assertEquals('{"name": "value"}', $massage->getData());
     }
 }

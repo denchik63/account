@@ -11,7 +11,7 @@ class Message implements BaseMessageInterface
     {
     }
 
-    public function getRequest(): string
+    public function getData(): string
     {
         return $this->message->getBody();
     }

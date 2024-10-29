@@ -55,6 +55,18 @@ start-worker:
 	$(TARGET_HEADER)
 	$(DOCKER_COMPOSE_RUN_CONSOLE_PHP) app:queue-worker ${QUEUE_NAME}
 
+create-account: up composer-install db-init
+	$(TARGET_HEADER)
+	$(DOCKER_COMPOSE_RUN_CONSOLE_PHP) app:create-account $(ARGS)
+
+refill-account: up composer-install db-init
+	$(TARGET_HEADER)
+	$(DOCKER_COMPOSE_RUN_CONSOLE_PHP) app:refill-account $(ARGS)
+
+write-off-account: up composer-install db-init
+	$(TARGET_HEADER)
+	$(DOCKER_COMPOSE_RUN_CONSOLE_PHP) app:write-off-from-account $(ARGS)
+
 fix-cs:
 	$(TARGET_HEADER)
 	$(DOCKER_COMPOSE_RUN_PHP) vendor/bin/php-cs-fixer fix -v -n

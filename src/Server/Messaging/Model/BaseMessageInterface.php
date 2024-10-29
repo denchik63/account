@@ -4,5 +4,5 @@ namespace App\Server\Messaging\Model;
 
 interface BaseMessageInterface
 {
-    public function getRequest(): string;
+    public function getData(): string;
 }

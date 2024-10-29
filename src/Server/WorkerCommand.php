@@ -36,7 +36,7 @@ class WorkerCommand extends Command
         $output->writeln(sprintf('Start handling queue with name "%s"...', $queueName));
 
         $callback = function (BaseMessageInterface $message) use ($queueName, $output): void {
-            $event = new MessageEvent($message->getRequest());
+            $event = new MessageEvent($message->getData());
             try {
                 $this->eventDispatcher->dispatch($event, MessageEvent::NAME);
             } catch (\Throwable $exception) {
@@ -62,7 +62,7 @@ class WorkerCommand extends Command
         } catch (MessagingException $exception) {
             $output->writeln(sprintf('An unexpected error occurred, message "%s"', $exception->getMessage()));
 
-            return Command::FAILURE;
+            throw $exception;
         }
 
         return Command::SUCCESS;
